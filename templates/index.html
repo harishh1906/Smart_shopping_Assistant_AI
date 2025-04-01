@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shopping Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Shopping Assistant</h1>
+        
+        <!-- Search Bar Form -->
+        <form method="GET" action="/" class="search-form">
+            <input type="text" name="query" placeholder="Search for products..." class="search-bar" value="{{ request.args.get('query', '') }}">
+        </form>
+        
+        <!-- Product Cards Section -->
+        <div class="product-cards">
+            {% for product in products %}
+                <div class="product-card">
+                    <h2>{{ product['name'] }}</h2>
+                    <p><strong>Brand:</strong> {{ product['brand'] }}</p>
+                    <p><strong>Ratings:</strong> {{ product['ratings'] }} / 5</p>
+                    <p><strong>Description:</strong> {{ product['description'] }}</p>
+                    <h3>Price Comparison:</h3>
+                    <ul class="price-list">
+                        <li class="price" data-price="{{ product['amazon_price'] }}" id="amazon-price-{{ product['id'] }}">
+                            <a href="https://www.amazon.com" target="_blank">Amazon: ${{ product['amazon_price'] }}</a>
+                        </li>
+                        <li class="price" data-price="{{ product['walmart_price'] }}" id="walmart-price-{{ product['id'] }}">
+                            <a href="https://www.walmart.com" target="_blank">Walmart: ${{ product['walmart_price'] }}</a>
+                        </li>
+                        <li class="price" data-price="{{ product['flipkart_price'] }}" id="flipkart-price-{{ product['id'] }}">
+                            <a href="https://www.flipkart.com" target="_blank">Flipkart: ${{ product['flipkart_price'] }}</a>
+                        </li>
+                    </ul>
+                    <a href="/product/{{ product['id'] }}" class="view-product-button">View Product</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- JavaScript for highlighting lowest price -->
+    <script>
+        window.onload = function() {
+            {% for product in products %}
+                // Get the prices for each product
+                var amazonPrice = {{ product['amazon_price'] }};
+                var walmartPrice = {{ product['walmart_price'] }};
+                var flipkartPrice = {{ product['flipkart_price'] }};
+                
+                // Get the price list for this product
+                var prices = [
+                    { price: amazonPrice, element: document.getElementById('amazon-price-{{ product['id'] }}') },
+                    { price: walmartPrice, element: document.getElementById('walmart-price-{{ product['id'] }}') },
+                    { price: flipkartPrice, element: document.getElementById('flipkart-price-{{ product['id'] }}') }
+                ];
+
+                // Find the lowest price
+                var lowestPrice = Math.min(amazonPrice, walmartPrice, flipkartPrice);
+                
+                // Highlight the lowest price in green
+                prices.forEach(function(item) {
+                    if (item.price === lowestPrice) {
+                        item.element.style.color = 'green'; // Highlight in green
+                    }
+                });
+            {% endfor %}
+        };
+    </script>
+</body>
+</html>

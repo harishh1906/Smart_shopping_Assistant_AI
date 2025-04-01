@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product['name'] }} - Product Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ product['name'] }}</h1>
+        
+        <!-- Product Details -->
+        <div class="product-card">
+            <p><strong>Category:</strong> Clothing</p>
+            <p><strong>Price:</strong> ${{ product['price'] }}</p>
+            <p><strong>Features:</strong> {{ product['features'] }}</p>
+            <p><strong>Ratings:</strong> {{ product['ratings'] }} / 5</p>
+            <p><strong>Availability:</strong> In Stock</p>
+            <p><strong>Description:</strong> {{ product['description'] }}</p>
+            <p><strong>Best Platform:</strong> ${{ product['amazon_price'] }}</p>
+        </div>
+
+        <h3>Product Recommendations:</h3>
+        <div class="product-cards">
+            {% for recommendation in recommendations %}
+                <div class="product-card">
+                    <h2>{{ recommendation['name'] }}</h2>
+                    <p><strong>Brand:</strong> {{ recommendation['brand'] }}</p>
+                    <a href="/product/{{ recommendation['id'] }}" class="view-product-button">View Product</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
