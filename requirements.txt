@@ -1,6 +1,7 @@
 flask
 numpy
 pandas
-scikit-learn
 matplotlib
+scikit-learn
 wordcloud
+textblob

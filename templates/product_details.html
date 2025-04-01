@@ -3,34 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product['name'] }} - Product Details</title>
+    <title>Product Details</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>{{ product['name'] }}</h1>
+        <p><strong>Brand:</strong> {{ product['brand'] }}</p>
+        <p><strong>Ratings:</strong> {{ product['ratings'] }} / 5</p>
+        <p><strong>Features:</strong> {{ product['features'] }}</p>
         
-        <!-- Product Details -->
-        <div class="product-card">
-            <p><strong>Category:</strong> Clothing</p>
-            <p><strong>Price:</strong> ${{ product['price'] }}</p>
-            <p><strong>Features:</strong> {{ product['features'] }}</p>
-            <p><strong>Ratings:</strong> {{ product['ratings'] }} / 5</p>
-            <p><strong>Availability:</strong> In Stock</p>
-            <p><strong>Description:</strong> {{ product['description'] }}</p>
-            <p><strong>Best Platform:</strong> ${{ product['amazon_price'] }}</p>
-        </div>
+        <h3>Price Comparison:</h3>
+        <ul>
+            <li>Amazon: <span class="price" data-price="{{ product['amazon_price'] }}">${{ product['amazon_price'] }}</span></li>
+            <li>Walmart: <span class="price" data-price="{{ product['walmart_price'] }}">${{ product['walmart_price'] }}</span></li>
+            <li>Flipkart: <span class="price" data-price="{{ product['flipkart_price'] }}">${{ product['flipkart_price'] }}</span></li>
+        </ul>
 
-        <h3>Product Recommendations:</h3>
+        <!-- AI-Generated Description -->
+        <h3>AI-Generated Description:</h3>
+        <p id="generated-description">Loading...</p>
+        
+        <!-- Eco-Friendly Recommendations -->
+        <h3>Eco-Friendly Similar Products:</h3>
         <div class="product-cards">
-            {% for recommendation in recommendations %}
+            {% for eco_product in eco_friendly_recommendations %}
                 <div class="product-card">
-                    <h2>{{ recommendation['name'] }}</h2>
-                    <p><strong>Brand:</strong> {{ recommendation['brand'] }}</p>
-                    <a href="/product/{{ recommendation['id'] }}" class="view-product-button">View Product</a>
+                    <h2>{{ eco_product['name'] }}</h2>
+                    <p><strong>Brand:</strong> {{ eco_product['brand'] }}</p>
+                    <p><strong>Ratings:</strong> {{ eco_product['ratings'] }} / 5</p>
+                    <p><strong>Features:</strong> {{ eco_product['features'] }}</p>
+                    <a href="/product/{{ eco_product['id'] }}" class="view-product-button">View Product</a>
                 </div>
             {% endfor %}
         </div>
-    </div>
+
+        <!-- Other Recommended Products (Non-Eco-Friendly) -->
+        <h3>Other Similar Products:</h3>
+        <div class="product-cards">
+            {% for similar_product in recommendations %}
+                <div class="product-card">
+                    <h2>{{ similar_product['name'] }}</h2>
+                    <p><strong>Brand:</strong> {{ similar_product['brand'] }}</p>
+                    <p><strong>Ratings:</strong> {{ similar_product['ratings'] }} / 5</p>
+                    <p><strong>Features:</strong> {{ similar_product['features'] }}</p>
+                    <a href="/product/{{ similar_product['id'] }}" class="view-product-button">View Product</a>
+                </div>
+            {% endfor %}
+        </div>
+    
+    <script>
+        fetch("/generate_description/{{ product['id'] }}")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("generated-description").innerText = data.description;
+            });
+    </script>
 </body>
 </html>

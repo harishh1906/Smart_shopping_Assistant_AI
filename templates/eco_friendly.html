@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Friendly Products</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Eco-Friendly Products</h1>
+        
+        <div class="product-cards">
+            {% for product in products %}
+                <div class="product-card">
+                    <h2>{{ product['name'] }}</h2>
+                    <p><strong>Brand:</strong> {{ product['brand'] }}</p>
+                    <p><strong>Ratings:</strong> {{ product['ratings'] }} / 5</p>
+                    <p><strong>Features:</strong> {{ product['features'] }}</p>
+                    <h3>Price Comparison:</h3>
+                    <ul>
+                        <li>Amazon: ${{ product['amazon_price'] }}</li>
+                        <li>Walmart: ${{ product['walmart_price'] }}</li>
+                        <li>Flipkart: ${{ product['flipkart_price'] }}</li>
+                    </ul>
+                    <a href="/product/{{ product['id'] }}" class="view-product-button">View Product</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
