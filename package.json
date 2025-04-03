@@ -1,0 +1,29 @@
+{
+  "name": "shopping",
+  "version": "1.0.0",
+  "description": "Smart Shopping Assistant\r A web-based shopping assistant that helps users compare prices for clothing items across multiple e-commerce platforms (Amazon, Walmart, and Flipkart). The platform also provides product recommendations using a machine learning model based on product similarity.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harishh1906/Smart_shopping_Assistant_AI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/harishh1906/Smart_shopping_Assistant_AI/issues"
+  },
+  "homepage": "https://github.com/harishh1906/Smart_shopping_Assistant_AI#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.0"
+  }
+}

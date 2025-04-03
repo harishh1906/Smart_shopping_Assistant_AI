@@ -120,7 +120,7 @@ Smart-Shopping-Assistant/
 ├── templates/            # Folder for HTML templates
 │   ├── index.html        # Home page template
 │   └── product_details.html  # Product details page template
-└── venv/                 # Virtual environment (if created)
+└── venv/                 # Virtual environment 
 ML Model Overview
 Principal Component Analysis (PCA): Used to reduce the dimensionality of the product feature space and create a simpler representation of the data.
 

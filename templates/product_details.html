@@ -15,15 +15,15 @@
         
         <h3>Price Comparison:</h3>
         <ul>
-            <li>Amazon: <span class="price" data-price="{{ product['amazon_price'] }}">${{ product['amazon_price'] }}</span></li>
-            <li>Walmart: <span class="price" data-price="{{ product['walmart_price'] }}">${{ product['walmart_price'] }}</span></li>
-            <li>Flipkart: <span class="price" data-price="{{ product['flipkart_price'] }}">${{ product['flipkart_price'] }}</span></li>
+            <li>Amazon: <span class="price">${{ product['amazon_price'] }}</span></li>
+            <li>Walmart: <span class="price">${{ product['walmart_price'] }}</span></li>
+            <li>Flipkart: <span class="price">${{ product['flipkart_price'] }}</span></li>
         </ul>
 
         <!-- AI-Generated Description -->
         <h3>AI-Generated Description:</h3>
         <p id="generated-description">Loading...</p>
-        
+
         <!-- Eco-Friendly Recommendations -->
         <h3>Eco-Friendly Similar Products:</h3>
         <div class="product-cards">
@@ -33,7 +33,7 @@
                     <p><strong>Brand:</strong> {{ eco_product['brand'] }}</p>
                     <p><strong>Ratings:</strong> {{ eco_product['ratings'] }} / 5</p>
                     <p><strong>Features:</strong> {{ eco_product['features'] }}</p>
-                    <a href="/product/{{ eco_product['id'] }}" class="view-product-button">View Product</a>
+                    <a href="{{ url_for('product_details', product_id=eco_product['id']) }}" class="view-product-button">View Product</a>
                 </div>
             {% endfor %}
         </div>
@@ -47,17 +47,19 @@
                     <p><strong>Brand:</strong> {{ similar_product['brand'] }}</p>
                     <p><strong>Ratings:</strong> {{ similar_product['ratings'] }} / 5</p>
                     <p><strong>Features:</strong> {{ similar_product['features'] }}</p>
-                    <a href="/product/{{ similar_product['id'] }}" class="view-product-button">View Product</a>
+                    <a href="{{ url_for('product_details', product_id=similar_product['id']) }}" class="view-product-button">View Product</a>
                 </div>
             {% endfor %}
         </div>
-    
+    </div>
+
     <script>
-        fetch("/generate_description/{{ product['id'] }}")
+        fetch("{{ url_for('generate_description', product_id=product['id']) }}")
             .then(response => response.json())
             .then(data => {
                 document.getElementById("generated-description").innerText = data.description;
-            });
+            })
+            .catch(error => console.error("Error fetching AI-generated description:", error));
     </script>
 </body>
 </html>
