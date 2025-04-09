@@ -16,7 +16,6 @@ const db = mysql.createConnection({
   database: "shopping_db",
 });
 
-// Connect to MySQL
 db.connect((err) => {
   if (err) {
     console.error("Database connection failed:", err);
@@ -25,7 +24,6 @@ db.connect((err) => {
   console.log("Connected to MySQL database");
 });
 
-// **User Registration Route**
 app.post("/register", (req, res) => {
   const { name, email, password } = req.body;
 
@@ -48,7 +46,6 @@ app.post("/register", (req, res) => {
   });
 });
 
-// **User Login Route**
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -81,7 +78,6 @@ app.post("/login", (req, res) => {
   });
 });
 
-// **Get Product Recommendations**
 app.get("/recommendations", (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -106,7 +102,6 @@ app.get("/recommendations", (req, res) => {
   });
 });
 
-// **Start Server**
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
