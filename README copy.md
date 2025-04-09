@@ -45,16 +45,6 @@ venv\Scripts\activate
 
 ###  Install MySQL
 - Download and install MySQL Server and MySQL Workbench
-- During installation, set up a root password (you'll use it below)
-
-
-###  Create the Database
-Open MySQL terminal or MySQL Workbench and run:
-
-# In sql
-
-- CREATE DATABASE shopping_db;
-
 
 ###  Import the Database Dump ( 2 options )
 
@@ -75,7 +65,15 @@ Click the ⚡ Run (Execute) button.
 
 ✅ This will create the shopping_db database with amazon_products and users tables. 
 
-# option 2 
+# option 2
+
+###  Create the Database
+
+Open MySQL terminal or MySQL Workbench and run:
+
+# In sql
+
+- CREATE DATABASE shopping_db;
 
 # Import the Database Dump
 
