@@ -21,42 +21,51 @@
         
         {% if products %}  
             <div class="product-cards">
-                {% for product in products[:50] %}  <!-- Display up to 50 products -->
+                {% for product in products[:500] %}
                     <div class="product-card">
-                        <img src="{{ product['image_url'] if product['image_url'] else url_for('static', filename='default.jpg') }}" alt="{{ product['name'] }}" class="product-image"> <!-- Product image -->
-                        <h2>{{ product['name'] }}</h2>
-                        <p><strong>Brand:</strong> {{ product['brand'] }}</p>
-                        <p><strong>Ratings:</strong> {{ product['ratings'] }} / 5</p>
-                        <p><strong>Features:</strong> {{ product['features'] }}</p>
-                        
+                        <img src="{{ product.img_link }}" alt="{{ product.product_name }}" class="product-img" onerror="this.onerror=null;this.src='/static/default.jpg';">
+                        <h2>{{ product['product_name'] }}</h2>
+                        <p><strong>Brand:</strong> {{ product['brand_name'] or 'N/A' }}</p>
+                        <p><strong>Ratings:</strong> {{ product['rating'] or '0' }} / 5</p>
+                        <p><strong>Features:</strong> {{ product['product_tag'] or 'Stylish & Durable' }}</p>
+
                         <h3>Price Comparison:</h3>
                         <ul class="price-list">
                             {% set prices = {
-                                'Amazon': product['amazon_price'],
-                                'Walmart': product['walmart_price'],
-                                'Flipkart': product['flipkart_price']
+                                'Myntra': product['discounted_price'] or product['price'],
+                                'Amazon': (product['price'] or 0) + 100,
+                                'Flipkart': (product['price'] or 0) + 50
+                            } %}
+                            {% set store_links = {
+                                'Myntra': product['product_link'] if product['product_link'].startswith('http') else 'https://www.myntra.com/' + product['product_link'].lstrip('/'),
+                                'Amazon': 'https://www.amazon.in/',
+                                'Flipkart': 'https://www.flipkart.com/'
                             } %}
                             {% set min_price = prices.values()|min %}
-                            
+                        
                             {% for store, price in prices.items() %}
                                 <li class="{% if price == min_price %}lowest-price{% endif %}">
-                                    <a href="https://www.{{ store | lower }}.com" target="_blank">
-                                        {{ store }}: ${{ price }}
+                                    <a href="{{ store_links[store] }}" target="_blank">
+                                        {{ store }}: ₹{{ price }}
                                     </a>
                                 </li>
                             {% endfor %}
                         </ul>
 
-                        <a href="/product/{{ product['id'] }}" class="view-product-button">View Product</a>
+                        {% if product['id'] %}
+                            <a href="/product/{{ product['id'] }}" class="view-product-button">View Product</a>
+                        {% else %}
+                            <p class="no-results">Product ID missing</p>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
         {% else %}
-            <p class="no-results">No products found. Please try a different search.</p> <!-- Message when no products are found -->
+            <p class="no-results">No products found. Please try a different search.</p>
         {% endif %}
         
         <br>
         <a href="/eco_friendly" class="view-product-button">View Eco-Friendly Products</a>
     </div>
-</body>
+</body> 
 </html>

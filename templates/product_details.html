@@ -8,16 +8,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>{{ product['name'] }}</h1>
-        <p><strong>Brand:</strong> {{ product['brand'] }}</p>
-        <p><strong>Ratings:</strong> {{ product['ratings'] }} / 5</p>
-        <p><strong>Features:</strong> {{ product['features'] }}</p>
+        <h1>{{ product['product_name'] }}</h1>
+        <p><strong>Brand:</strong> {{ product['brand_name'] }}</p>
+        <p><strong>Ratings:</strong> {{ product['rating'] }} / 5 ({{ product['rating_count'] }} reviews)</p>
+        <p><strong>Available Sizes:</strong> {{ product['sizes'] }}</p>
+        <p><strong>Tag:</strong> {{ product['product_tag'] }}</p>
+        <p><strong>Brand Category:</strong> {{ product['brand_tag'] }}</p>
         
-        <h3>Price Comparison:</h3>
+        <h3>Price Information:</h3>
         <ul>
-            <li>Amazon: <span class="price">${{ product['amazon_price'] }}</span></li>
-            <li>Walmart: <span class="price">${{ product['walmart_price'] }}</span></li>
-            <li>Flipkart: <span class="price">${{ product['flipkart_price'] }}</span></li>
+            <li>Marked Price: ₹<span class="price">{{ product['marked_price'] }}</span></li>
+            <li>Discount: ₹<span class="price">{{ product['discount_amount'] }}</span> ({{ product['discount_percent'] }}%)</li>
         </ul>
 
         <!-- AI-Generated Description -->
@@ -29,10 +30,10 @@
         <div class="product-cards">
             {% for eco_product in eco_friendly_recommendations %}
                 <div class="product-card">
-                    <h2>{{ eco_product['name'] }}</h2>
-                    <p><strong>Brand:</strong> {{ eco_product['brand'] }}</p>
-                    <p><strong>Ratings:</strong> {{ eco_product['ratings'] }} / 5</p>
-                    <p><strong>Features:</strong> {{ eco_product['features'] }}</p>
+                    <h2>{{ eco_product['product_name'] }}</h2>
+                    <p><strong>Brand:</strong> {{ eco_product['brand_name'] }}</p>
+                    <p><strong>Ratings:</strong> {{ eco_product['rating'] }} / 5</p>
+                    <p><strong>Sizes:</strong> {{ eco_product['sizes'] }}</p>
                     <a href="{{ url_for('product_details', product_id=eco_product['id']) }}" class="view-product-button">View Product</a>
                 </div>
             {% endfor %}
@@ -43,10 +44,10 @@
         <div class="product-cards">
             {% for similar_product in recommendations %}
                 <div class="product-card">
-                    <h2>{{ similar_product['name'] }}</h2>
-                    <p><strong>Brand:</strong> {{ similar_product['brand'] }}</p>
-                    <p><strong>Ratings:</strong> {{ similar_product['ratings'] }} / 5</p>
-                    <p><strong>Features:</strong> {{ similar_product['features'] }}</p>
+                    <h2>{{ similar_product['product_name'] }}</h2>
+                    <p><strong>Brand:</strong> {{ similar_product['brand_name'] }}</p>
+                    <p><strong>Ratings:</strong> {{ similar_product['rating'] }} / 5</p>
+                    <p><strong>Sizes:</strong> {{ similar_product['sizes'] }}</p>
                     <a href="{{ url_for('product_details', product_id=similar_product['id']) }}" class="view-product-button">View Product</a>
                 </div>
             {% endfor %}

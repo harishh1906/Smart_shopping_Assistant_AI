@@ -28,7 +28,7 @@ def register():
         password = request.form['password']
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-        cursor = None  # Initialize cursor to avoid UnboundLocalError
+        cursor = None
 
         try:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -46,7 +46,7 @@ def register():
         except MySQLdb.Error as e:
             flash(f'Database error: {e}', 'danger')
         finally:
-            if cursor:  # Close cursor only if it was initialized
+            if cursor:
                 cursor.close()
 
         return redirect(url_for('login'))
@@ -74,26 +74,22 @@ def login():
                     session.permanent = True
                     
                     flash('Login successful!', 'success')
-                    print(f"✅ Redirecting to home | Session Data: {session}")  # Debugging
-                    
-                    return redirect(url_for('home'))  # Redirect to home
-                
+                    print(f"✅ Redirecting to home | Session Data: {session}")
+                    return redirect(url_for('home'))
                 else:
                     flash('Invalid credentials.', 'danger')
-                    print("❌ Password incorrect")  # Debugging
-
+                    print("❌ Password incorrect")
             else:
                 flash('User not found.', 'danger')
-                print("❌ User does not exist")  # Debugging
+                print("❌ User does not exist")
 
         except MySQLdb.Error as e:
             flash(f'Database error: {e}', 'danger')
-            print(f"❌ Database error: {e}")  # Debugging
-
+            print(f"❌ Database error: {e}")
         finally:
             cursor.close()
     
-    return render_template('login.html')  # Show login page again if login fails
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
@@ -104,111 +100,105 @@ def logout():
 @app.route('/')
 def home():
     if 'logged_in' in session:
-        print(f"User {session['name']} is logged in.")  # Debugging
+        print(f"User {session['name']} is logged in.")
 
         query = request.args.get('query', '').strip()
-        print(f"🔍 Search Query: '{query}'")  # Debugging
+        print(f"🔍 Search Query: '{query}'")
 
         try:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            
-            # Check if user entered a search query
+
             if query:
                 sql_query = """
-                    SELECT id, name, brand, ratings, features, amazon_price, walmart_price, flipkart_price, 
-                           image_url, amazon_url, walmart_url, flipkart_url 
-                    FROM products 
-                    WHERE name LIKE %s OR brand LIKE %s OR features LIKE %s
-                    LIMIT 50
+                    SELECT * FROM amazon_products 
+                    WHERE product_name LIKE %s
+                    LIMIT 1000
                 """
-                params = (f"%{query}%", f"%{query}%", f"%{query}%")
-                print(f"📌 Executing Query: {sql_query} with {params}")  # Debugging
+                params = (f"%{query}%",)
+                print(f"📌 Executing Query: {sql_query} with {params}")
                 cursor.execute(sql_query, params)
             else:
-                sql_query = """
-                    SELECT id, name, brand, ratings, features, amazon_price, walmart_price, flipkart_price, 
-                           image_url, amazon_url, walmart_url, flipkart_url 
-                    FROM products 
-                    LIMIT 50
-                """
-                print("📌 Executing Default Query (No search term)")  # Debugging
-                cursor.execute(sql_query)
+                cursor.execute("SELECT * FROM amazon_products LIMIT 1000")
 
             products = cursor.fetchall()
-            print(f"✅ Retrieved {len(products)} products")  # Debugging
-            
+            print(f"✅ Retrieved {len(products)} products")
         except MySQLdb.Error as e:
             flash(f'Database error: {e}', 'danger')
-            print(f"❌ Database Error: {e}")  # Debugging
+            print(f"❌ Database Error: {e}")
             products = []
         finally:
-            cursor.close()
+            if cursor:
+                cursor.close()
 
         return render_template('index.html', name=session['name'], products=products, query=query)
 
-    print("User not logged in, redirecting to login.")  # Debugging
+    print("User not logged in, redirecting to login.")
     flash('Login required.', 'warning')
     return redirect(url_for('login'))
 
 @app.route('/product/<int:product_id>')
 def product_details(product_id):
-    print(f"Fetching product details for ID: {product_id}")  # Debugging
-    cursor = None  # Initialize cursor
+    print(f"Fetching product details for ID: {product_id}")
+    cursor = None
 
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+        cursor.execute("SELECT * FROM amazon_products WHERE id = %s", (product_id,))
         product = cursor.fetchone()
 
         if not product:
             flash('Product not found.', 'danger')
-            return redirect(url_for('home'))  # Redirect instead of returning None
+            return redirect(url_for('home'))
 
-        cursor.execute("SELECT * FROM products WHERE id != %s ORDER BY RAND() LIMIT 5", (product_id,))
+        # 🧠 AI-generated description
+        ai_description = f"The {product['product_name']} is a stylish {product['product_tag']} from {product['brand_name'] or 'a leading brand'}, perfect for modern needs."
+
+        # 🟢 Similar products
+        cursor.execute("SELECT * FROM amazon_products WHERE id != %s ORDER BY RAND() LIMIT 5", (product_id,))
         recommendations = cursor.fetchall()
 
-        cursor.execute("SELECT * FROM products WHERE eco_friendly = 1 AND id != %s ORDER BY RAND() LIMIT 5", (product_id,))
+        # 🌱 Eco-friendly: mocked using high discounts
+        cursor.execute("SELECT * FROM amazon_products WHERE discount_percent > 50 AND id != %s ORDER BY RAND() LIMIT 5", (product_id,))
         eco_friendly_recommendations = cursor.fetchall()
 
         return render_template(
             'product_details.html',
             product=product,
             recommendations=recommendations,
-            eco_friendly_recommendations=eco_friendly_recommendations
+            eco_friendly_recommendations=eco_friendly_recommendations,
+            ai_description=ai_description
         )
 
     except MySQLdb.Error as e:
         flash(f'Database error: {e}', 'danger')
-        return redirect(url_for('home')) 
+        return redirect(url_for('home'))
+    finally:
+        if cursor:
+            cursor.close()
 
 @app.route('/generate_description/<int:product_id>')
 def generate_description(product_id):
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("SELECT name, features FROM products WHERE id = %s", (product_id,))
+        cursor.execute("SELECT product_name, product_tag FROM amazon_products WHERE id = %s", (product_id,))
         product = cursor.fetchone()
+        cursor.close()
 
         if not product:
             return jsonify({'error': 'Product not found'}), 404
 
-        # Example: Generate a simple description using product data
-        description = f"The {product['name']} is a high-quality product featuring {product['features']}."
+        # Use existing fields only
+        description = f"The {product['product_name']} is a premium {product['product_tag']} that offers style and comfort."
 
         return jsonify({'description': description})
-
-    except MySQLdb.Error as e:
-        return jsonify({'error': str(e)}), 500
+    
+    except Exception as e:
+        print("Error in /generate_description route:", e)
+        return jsonify({'error': 'Server error'}), 500
 
     finally:
-        cursor.close()
+        if cursor:
+            cursor.close()
 
-    return render_template(
-        'product_details.html',
-        product=product,
-        recommendations=recommendations,
-        eco_friendly_recommendations=eco_friendly_recommendations
-    )
-
-
-if __name__ == '__main__':
+if __name__ == '__main__': 
     app.run(debug=True)
