@@ -150,14 +150,14 @@ def product_details(product_id):
             flash('Product not found.', 'danger')
             return redirect(url_for('home'))
 
-        # 🧠 AI-generated description
+        #  AI-generated description
         ai_description = f"The {product['product_name']} is a stylish {product['product_tag']} from {product['brand_name'] or 'a leading brand'}, perfect for modern needs."
 
-        # 🟢 Similar products
+        #  Similar products
         cursor.execute("SELECT * FROM amazon_products WHERE id != %s ORDER BY RAND() LIMIT 5", (product_id,))
         recommendations = cursor.fetchall()
 
-        # 🌱 Eco-friendly: mocked using high discounts
+        #  Eco-friendly: mocked using high discounts
         cursor.execute("SELECT * FROM amazon_products WHERE discount_percent > 50 AND id != %s ORDER BY RAND() LIMIT 5", (product_id,))
         eco_friendly_recommendations = cursor.fetchall()
 
@@ -187,7 +187,7 @@ def generate_description(product_id):
         if not product:
             return jsonify({'error': 'Product not found'}), 404
 
-        # Use existing fields only
+        
         description = f"The {product['product_name']} is a premium {product['product_tag']} that offers style and comfort."
 
         return jsonify({'description': description})
