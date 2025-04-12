@@ -107,9 +107,7 @@ docker run -p 5000:5000 shopping-assistant
 The app will be available at http://localhost:5000.
 
 Project Structure
-graphql
-Copy
-Edit
+
 Smart-Shopping-Assistant/
 │
 ├── app.py                # Flask app with routes and logic
