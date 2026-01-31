@@ -6,16 +6,20 @@ import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import cosine_similarity
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = '0b44ca19022clea18bb659b30fdf133a0fbc822f115c59cc64c58f2ccb8c71a5'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', '0b44ca19022clea18bb659b30fdf133a0fbc822f115c59cc64c58f2ccb8c71a5')
 app.config['SESSION_PERMANENT'] = True
 
 # MySQL Config
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Juneoct@9'
-app.config['MYSQL_DB'] = 'shopping_db'
+app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST', 'localhost')
+app.config['MYSQL_USER'] = os.getenv('MYSQL_USER', 'root')
+app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD', '')
+app.config['MYSQL_DB'] = os.getenv('MYSQL_DB', 'shopping_db')
 
 mysql = MySQL(app)
 bcrypt = Bcrypt(app)
@@ -58,6 +62,7 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        cursor = None
         
         try:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -87,7 +92,8 @@ def login():
             flash(f'Database error: {e}', 'danger')
             print(f"❌ Database error: {e}")
         finally:
-            cursor.close()
+            if cursor:
+                cursor.close()
     
     return render_template('login.html')
 
@@ -178,11 +184,11 @@ def product_details(product_id):
 
 @app.route('/generate_description/<int:product_id>')
 def generate_description(product_id):
+    cursor = None
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT product_name, product_tag FROM amazon_products WHERE id = %s", (product_id,))
         product = cursor.fetchone()
-        cursor.close()
 
         if not product:
             return jsonify({'error': 'Product not found'}), 404
