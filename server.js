@@ -10,10 +10,10 @@ app.use(bodyParser.json());
 
 // MySQL Database Connection
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: process.env.DB_PASSWORD,
-  database: "shopping_db",
+  host: process.env.MYSQL_HOST || "localhost",
+  user: process.env.MYSQL_USER || "root",
+  password: process.env.DB_PASSWORD || process.env.MYSQL_PASSWORD || "",
+  database: process.env.MYSQL_DB || "shopping_db",
 });
 
 db.connect((err) => {
@@ -69,7 +69,7 @@ app.post("/login", (req, res) => {
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
-      const token = jwt.sign({ userId: user.user_id }, process.env.SECRET_KEY, {
+      const token = jwt.sign({ userId: user.user_id }, process.env.SECRET_KEY || "default_secret_key", {
         expiresIn: "1h",
       });
 
@@ -85,7 +85,7 @@ app.get("/recommendations", (req, res) => {
     return res.status(401).json({ error: "Unauthorized. No token provided." });
   }
 
-  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+  jwt.verify(token, process.env.SECRET_KEY || "default_secret_key", (err, decoded) => {
     if (err) {
       return res.status(403).json({ error: "Invalid or expired token." });
     }
