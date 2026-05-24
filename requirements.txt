@@ -1,6 +1,5 @@
 flask
 flask-bcrypt
-flask-mysqldb
 pymysql
 pandas
 numpy

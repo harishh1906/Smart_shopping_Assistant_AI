@@ -1,17 +1,33 @@
 import logging
-from flask import current_app
-from flask_mysqldb import MySQL
-import MySQLdb.cursors
+from flask import g, current_app
+import pymysql
+import pymysql.cursors
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class DatabaseService:
-    """Service to handle MySQL transactions cleanly and prevent connection leaks."""
-    
-    def __init__(self, mysql_instance: MySQL):
-        self.mysql = mysql_instance
+    """Service to handle MySQL transactions cleanly using pure-Python PyMySQL."""
+
+    def _get_connection(self):
+        """
+        Request-scoped connection caching using Flask 'g' context.
+        Maintains a single open connection per HTTP request thread.
+        """
+        if 'db_conn' not in g:
+            try:
+                g.db_conn = pymysql.connect(
+                    host=current_app.config['MYSQL_HOST'],
+                    user=current_app.config['MYSQL_USER'],
+                    password=current_app.config['MYSQL_PASSWORD'],
+                    database=current_app.config['MYSQL_DB'],
+                    cursorclass=pymysql.cursors.DictCursor,
+                    charset='utf8mb4'
+                )
+                logger.info("🔌 Created a fresh PyMySQL database connection.")
+            except Exception as e:
+                logger.error(f"❌ Failed to connect to MySQL database: {e}")
+                raise e
+        return g.db_conn
 
     def execute_query(self, query: str, params: tuple = None, fetch: str = 'all'):
         """
@@ -22,11 +38,9 @@ class DatabaseService:
         :param fetch: 'all' to fetch all records, 'one' to fetch a single record, 'none' for write operations.
         :return: Fetched records or rows affected.
         """
-        cursor = None
+        conn = self._get_connection()
+        cursor = conn.cursor()
         try:
-            # Get dict cursor
-            cursor = self.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            
             if params:
                 cursor.execute(query, params)
             else:
@@ -37,13 +51,12 @@ class DatabaseService:
             elif fetch == 'one':
                 results = cursor.fetchone()
             else:
-                self.mysql.connection.commit()
+                conn.commit()
                 results = cursor.rowcount
                 
             return results
-        except MySQLdb.Error as e:
-            logger.error(f"❌ Database Exception encountered: {e} | Query: {query} | Params: {params}")
+        except Exception as e:
+            logger.error(f"❌ Database Query Exception: {e} | Query: {query} | Params: {params}")
             raise e
         finally:
-            if cursor:
-                cursor.close()
+            cursor.close()

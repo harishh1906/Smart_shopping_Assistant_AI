@@ -1,16 +1,11 @@
-import pymysql
-pymysql.install_as_MySQLdb()
-
-from flask import Flask
-from flask_mysqldb import MySQL
+from flask import Flask, g
 from flask_bcrypt import Bcrypt
 from app.config import Config
 from app.services.db import DatabaseService
 from app.services.recommender import RecommendationService
 from app.services.sentiment import SentimentService
 
-# Instantiate global Flask-MySQLdb and Bcrypt extensions
-mysql = MySQL()
+# Instantiate global Bcrypt extension
 bcrypt = Bcrypt()
 
 def create_app(config_class=Config) -> Flask:
@@ -22,13 +17,22 @@ def create_app(config_class=Config) -> Flask:
     app.config.from_object(config_class)
 
     # Initialize Flask Extensions
-    mysql.init_app(app)
     bcrypt.init_app(app)
+
+    # Register application teardown context hook to close connections cleanly
+    @app.teardown_appcontext
+    def teardown_db(exception):
+        db = g.pop('db_conn', None)
+        if db is not None:
+            try:
+                db.close()
+            except Exception:
+                pass
 
     # Instantiate services inside the app context
     with app.app_context():
-        # Core DB layer service
-        db_service = DatabaseService(mysql)
+        # Core DB layer service using pure PyMySQL
+        db_service = DatabaseService()
         
         # AI/ML services
         recommender_service = RecommendationService(db_service)
