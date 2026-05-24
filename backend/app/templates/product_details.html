@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.product_name }} - Insights{% endblock %}
+
+{% block content %}
+<div class="glass-container" style="padding: 2.5rem; margin-bottom: 3rem;">
+    <a href="/" class="btn btn-secondary" style="margin-bottom: 2rem;">← Back to Catalog</a>
+
+    <div class="details-grid">
+        <!-- Gallery Panel -->
+        <div class="detail-gallery">
+            <div class="detail-img-wrapper">
+                <img src="{{ product.img_link }}" alt="{{ product.product_name }}" class="detail-img" onerror="this.onerror=null;this.src='/static/default.jpg';">
+            </div>
+            
+            <div class="detail-meta-box">
+                <h3 style="font-size: 1.15rem; margin-bottom: 1rem; color: var(--accent-amber);">Product Metadata</h3>
+                <div class="detail-spec">
+                    <span class="detail-spec-label">Tag Category</span>
+                    <span class="detail-spec-value">{{ product.product_tag or 'Apparel' }}</span>
+                </div>
+                <div class="detail-spec">
+                    <span class="detail-spec-label">Brand Category</span>
+                    <span class="detail-spec-value">{{ product.brand_tag or 'Standard' }}</span>
+                </div>
+                <div class="detail-spec">
+                    <span class="detail-spec-label">Available Sizes</span>
+                    <span class="detail-spec-value" style="font-weight: 500;">{{ product.sizes or 'Standard' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metadata & Actions Panel -->
+        <div>
+            <h2 style="font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.5rem;">{{ product.product_name }}</h2>
+            <p style="font-size: 1.1rem; font-weight: 500; color: var(--accent-amber); margin-bottom: 1.5rem;">
+                by {{ product.brand_name or 'Premium Collection' }}
+            </p>
+            
+            <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem;">
+                <span class="rating-badge" style="font-size: 1.1rem; padding: 0.35rem 0.75rem;">★ {{ product.rating or '3.8' }}</span>
+                <span style="color: var(--text-muted); font-size: 0.95rem;">({{ rating_count }} verified purchase reviews)</span>
+            </div>
+
+            <!-- Price Summary -->
+            <div style="background: rgba(15, 23, 42, 0.4); border-radius: var(--radius-md); padding: 1.5rem; border: 1px solid var(--border-color); margin-bottom: 2.5rem;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-secondary);">Direct Retail Price</h3>
+                <div style="display: flex; gap: 2rem; align-items: baseline;">
+                    {% set disc_pct = product.discount_percent | int %}
+                    <span style="font-size: 2.25rem; font-weight: 700; color: var(--success);">₹{{ product.discounted_price or product.marked_price }}</span>
+                    {% if disc_pct > 0 %}
+                        <span style="text-decoration: line-through; color: var(--text-muted); font-size: 1.25rem;">₹{{ product.marked_price }}</span>
+                        <span style="background: var(--warning-bg); color: var(--warning); padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 700; font-size: 0.85rem;">SAVE {{ disc_pct }}%</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Asynchronous AI-Generated Description -->
+            <div style="margin-bottom: 2.5rem;">
+                <h3 style="font-size: 1.25rem; color: var(--text-primary); border-bottom: 1.5px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                    🤖 SmartShop AI product insight:
+                </h3>
+                <div id="generated-description" data-product-id="{{ product.id }}">
+                    <p style="color: var(--text-muted); font-style: italic;">Assembling dynamic AI product description copywriting...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Sentiment Analytics Module -->
+    <div class="sentiment-card">
+        <div class="sentiment-heading">
+            <div>
+                <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-primary);">📊 Real-Time NLP Customer Sentiment</h2>
+                <p style="margin: 0.25rem 0 0; font-size: 0.9rem; color: var(--text-secondary);">Calculated dynamically by analyzing verified buyer comments with TextBlob.</p>
+            </div>
+            {% set clean_overall = overall_sentiment | lower %}
+            <span class="overall-status {% if 'critical' in clean_overall %}critical{% elif 'mixed' in clean_overall %}mixed{% endif %}">
+                Overall: {{ overall_sentiment }}
+            </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 2.5rem; margin-top: 1.5rem;">
+            <!-- Satisfaction Dial breakdown -->
+            <div style="border-right: 1px solid var(--border-color); padding-right: 2.5rem;">
+                <h4 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-secondary);">Polarity Metrics Distribution:</h4>
+                <div class="sentiment-metrics">
+                    <div class="sentiment-row">
+                        <div class="sentiment-row-header">
+                            <span>Positive Polarity</span>
+                            <span style="color: var(--success);">{{ breakdown.positive }}%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar positive" style="width: {{ breakdown.positive }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="sentiment-row">
+                        <div class="sentiment-row-header">
+                            <span>Neutral Polarity</span>
+                            <span style="color: var(--text-secondary);">{{ breakdown.neutral }}%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar neutral" style="width: {{ breakdown.neutral }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="sentiment-row">
+                        <div class="sentiment-row-header">
+                            <span>Negative Polarity</span>
+                            <span style="color: var(--danger);">{{ breakdown.negative }}%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar negative" style="width: {{ breakdown.negative }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom User Reviews lists -->
+            <div>
+                <h4 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-secondary);">Verified Customer Comments:</h4>
+                {% for review in reviews %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-author">{{ review.author }}</span>
+                            {% set clean_lbl = review.label | lower %}
+                            <span class="review-badge {% if 'positive' in clean_lbl %}positive{% elif 'negative' in clean_lbl %}negative{% else %}neutral{% endif %}">
+                                {{ review.label }} (Polarity: {{ review.polarity }})
+                            </span>
+                        </div>
+                        <p style="margin: 0; font-size: 0.92rem; color: var(--text-secondary);">"{{ review.comment }}"</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Dynamic Recommendations Subgrids -->
+<div style="margin-bottom: 4rem;">
+    <h2 style="margin-bottom: 1.5rem; border-left: 4px solid var(--success); padding-left: 0.75rem;">🌱 Sustainable Green Alternatives</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Lower carbon footprint options made of cotton, linen, or having high sustainable ratings matched in the same category.</p>
+    
+    <div class="product-cards">
+        {% for eco_product in eco_friendly_recommendations %}
+            <div class="product-card" style="background: rgba(16, 185, 129, 0.03); border-color: rgba(16, 185, 129, 0.15);">
+                <div class="product-img-container" style="height: 140px;">
+                    <img src="{{ eco_product.img_link }}" alt="{{ eco_product.product_name }}" class="product-img" onerror="this.onerror=null;this.src='/static/default.jpg';">
+                </div>
+                <div class="product-meta">
+                    <span>{{ eco_product.brand_name or 'Eco Brand' }}</span>
+                    <span class="rating-badge" style="background: var(--success-bg); color: var(--success);">★ {{ eco_product.rating or '4.0' }}</span>
+                </div>
+                <h3 class="product-title" style="font-size: 1rem; height: 2.5rem;" title="{{ eco_product.product_name }}">{{ eco_product.product_name }}</h3>
+                <p style="font-size: 1.1rem; font-weight: 700; color: var(--success); margin: 0.5rem 0 1rem;">₹{{ eco_product.discounted_price or eco_product.marked_price }}</p>
+                <a href="{{ url_for('products.product_details', product_id=eco_product.id) }}" class="btn view-btn" style="padding: 0.6rem;">Inspect Option 🌱</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-blue); padding-left: 0.75rem;">🤖 People Also Viewed (TF-IDF Content Similarity)</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Calculated in real-time by analyzing content vector angles between clothing tags and product names.</p>
+    
+    <div class="product-cards">
+        {% for similar_product in recommendations %}
+            <div class="product-card">
+                <div class="product-img-container" style="height: 140px;">
+                    <img src="{{ similar_product.img_link }}" alt="{{ similar_product.product_name }}" class="product-img" onerror="this.onerror=null;this.src='/static/default.jpg';">
+                </div>
+                <div class="product-meta">
+                    <span>{{ similar_product.brand_name or 'Brand Catalog' }}</span>
+                    <span class="rating-badge">★ {{ similar_product.rating or '3.8' }}</span>
+                </div>
+                <h3 class="product-title" style="font-size: 1rem; height: 2.5rem;" title="{{ similar_product.product_name }}">{{ similar_product.product_name }}</h3>
+                <p style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0.5rem 0 1rem;">₹{{ similar_product.discounted_price or similar_product.marked_price }}</p>
+                <a href="{{ url_for('products.product_details', product_id=similar_product.id) }}" class="btn view-btn btn-secondary" style="padding: 0.6rem;">Compare Item 🔄</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,3 +1,49 @@
+# Python Byte-compiled Caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
 venv/
-*.csv
+test_env/
+ENV/
+env/
+.venv/
+
+# Environment Variables
 .env
+.env.production
+.env.local
+
+# Databases & Log Exports
+*.log
+*.sql
+*.sqlite3
+*.sqlite3-journal
+database/shopping_db.sql  # Ignore seed database from version control changes if it is massive
+
+# Node.js (Purged from structure, keep rules)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE & Editor specific files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.sublime-project
+*.sublime-workspace
+
+# Operating System Temporary Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.Spotlight-V100
+.Trashes

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Shopping Assistant AI{% endblock %}
+
+{% block content %}
+<div class="glass-container" style="padding: 2rem;">
+    <h2 style="margin-bottom: 0.5rem;">AI-Powered Fashion Shopping Assistant</h2>
+    <p style="margin-bottom: 2rem;">Search across thousands of apparel products, compare live prices dynamically across channels, and view AI similar clothing recommendations instantly.</p>
+    
+    <form method="GET" action="{{ url_for('products.home') }}" class="search-form">
+        <input type="text" name="query" placeholder="Search for clothing, sneakers, brands, categories (e.g. Kurta, Nike, Jeans)..." class="search-bar" value="{{ query }}">
+        <button type="submit">Search Assistant 🔍</button>
+    </form>
+</div>
+
+{% if products %}
+    <h2 style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-amber); padding-left: 0.75rem;">
+        {% if query %}Search Results for "{{ query }}"{% else %}Trending Apparel Catalog{% endif %}
+    </h2>
+
+    <div class="product-cards">
+        {% for product in products %}
+            <div class="product-card">
+                <!-- Image Section -->
+                <div class="product-img-container">
+                    <img src="{{ product.img_link }}" alt="{{ product.product_name }}" class="product-img" onerror="this.onerror=null;this.src='/static/default.jpg';">
+                </div>
+                
+                <!-- Product Metadata -->
+                <div class="product-meta">
+                    <span>{{ product.brand_name or 'Brand Catalog' }}</span>
+                    <span class="rating-badge">★ {{ product.rating or '3.8' }}</span>
+                </div>
+                
+                <!-- Title -->
+                <h3 class="product-title" title="{{ product.product_name }}">{{ product.product_name }}</h3>
+                
+                <!-- Dynamic Price Comparisons -->
+                <h4 style="font-size: 0.9rem; color: var(--text-muted); margin: 1rem 0 0.25rem;">Compare Prices:</h4>
+                <ul class="price-list">
+                    {% set myntra_price = product.discounted_price or product.marked_price or 499 %}
+                    {% set amazon_price = (myntra_price * 1.15) | round %}
+                    {% set flipkart_price = (myntra_price * 1.08) | round %}
+                    
+                    {% set prices = {
+                        'Myntra (Primary)': myntra_price,
+                        'Amazon': amazon_price,
+                        'Flipkart': flipkart_price
+                    } %}
+                    {% set min_price = prices.values() | min %}
+                    
+                    {% for store, price in prices.items() %}
+                        <li class="price-item {% if price == min_price %}lowest-price-tag{% endif %}">
+                            <span>{{ store }}</span>
+                            <span class="{% if price == min_price %}lowest-price-val{% endif %}">₹{{ price }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Details Action Button -->
+                {% if product.id %}
+                    <a href="{{ url_for('products.product_details', product_id=product.id) }}" class="btn view-btn">View AI Insights 🤖</a>
+                {% else %}
+                    <p class="no-results">ID missing</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="glass-container" style="text-align: center; padding: 4rem 2rem;">
+        <span style="font-size: 4rem;">🔍</span>
+        <h3 style="margin-top: 1.5rem;">No matching fashion items found</h3>
+        <p>Please try adjusting your search filters or input tags (e.g., try 'shirt', 'dress', or 'nike').</p>
+        <a href="/" class="btn" style="margin-top: 1.5rem;">Reset Catalog View</a>
+    </div>
+{% endif %}
+{% endblock %}

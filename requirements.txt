@@ -1,7 +1,9 @@
 flask
-numpy
+flask-bcrypt
+flask-mysqldb
+mysqlclient
 pandas
-matplotlib
+numpy
 scikit-learn
-wordcloud
 textblob
+python-dotenv

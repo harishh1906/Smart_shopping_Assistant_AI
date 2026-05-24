@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Smart Shopping Assistant AI - Portfolio-level AI-powered shopping assistant that uses content filtering recommendations and sentiment analysis.">
+    <title>{% block title %}Smart Shopping Assistant AI{% endblock %}</title>
+    <!-- CSS stylesheet link -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <!-- Global Header Nav -->
+        <header>
+            <div class="logo-group">
+                <span class="logo-icon">🛍️</span>
+                <h1><a href="/" style="text-decoration:none; color:inherit;">SmartShop AI</a></h1>
+            </div>
+            {% if session.get('logged_in') %}
+            <div class="user-badge">
+                <span>👋 Welcome, <strong>{{ session.get('name') }}</strong></span>
+                <a href="/eco_friendly" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">🌱 Eco Catalog</a>
+                <a href="/logout" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Logout</a>
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- Flash messages system -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-container">
+                    {% for category, message in messages %}
+                        <li class="flash-msg flash-{{ category }}">
+                            <span>📢</span> {{ message }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Content Block -->
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+        
+        <!-- Global Footer -->
+        <footer>
+            <p>&copy; 2026 Smart Shopping Assistant AI. Portfolio Showcase | Open Source Maintainer Project.</p>
+        </footer>
+    </div>
+
+    <!-- Client-side Interaction JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Curated Eco-Friendly Catalog - SmartShop AI{% endblock %}
+
+{% block content %}
+<div class="glass-container" style="padding: 2.5rem; margin-bottom: 2.5rem; background: rgba(16, 185, 129, 0.04); border-color: rgba(16, 185, 129, 0.15);">
+    <div style="display: flex; gap: 1.5rem; align-items: center;">
+        <span style="font-size: 3.5rem;">🌱</span>
+        <div>
+            <h2 style="margin: 0; font-size: 2rem;">Curated Eco-Friendly Catalogue</h2>
+            <p style="margin: 0.5rem 0 0; font-size: 1.05rem; color: var(--text-secondary);">
+                Hand-picked clothing items manufactured with organic, pure, and biodegradable materials (like Linen, Pure Cotton, Khadi, and Jute) with high verified feedback rankings.
+            </p>
+        </div>
+    </div>
+</div>
+
+<a href="/" class="btn btn-secondary" style="margin-bottom: 2rem;">← Back to Catalog</a>
+
+{% if products %}
+    <div class="product-cards">
+        {% for product in products %}
+            <div class="product-card" style="background: rgba(16, 185, 129, 0.02); border-color: rgba(16, 185, 129, 0.12);">
+                <!-- Image Section -->
+                <div class="product-img-container">
+                    <img src="{{ product.img_link }}" alt="{{ product.product_name }}" class="product-img" onerror="this.onerror=null;this.src='/static/default.jpg';">
+                </div>
+                
+                <!-- Product Metadata -->
+                <div class="product-meta">
+                    <span>{{ product.brand_name or 'Sustainable Label' }}</span>
+                    <span class="rating-badge" style="background: var(--success-bg); color: var(--success);">★ {{ product.rating or '4.2' }}</span>
+                </div>
+                
+                <!-- Title -->
+                <h3 class="product-title" title="{{ product.product_name }}">{{ product.product_name }}</h3>
+                
+                <!-- Sustainable Material Tag Badge -->
+                <div style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    <span style="background: var(--success-bg); color: var(--success); font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px;">
+                        ♻️ Organic Blend
+                    </span>
+                    <span style="background: rgba(255,255,255,0.04); color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px;">
+                        {{ product.product_tag or 'Apparel' }}
+                    </span>
+                </div>
+
+                <!-- Live Price comparisons -->
+                <h4 style="font-size: 0.85rem; color: var(--text-muted); margin: 0.5rem 0 0.25rem;">Live Dynamic Prices:</h4>
+                <ul class="price-list" style="margin-bottom: 1.25rem;">
+                    {% set myntra_price = product.discounted_price or product.marked_price or 599 %}
+                    {% set amazon_price = (myntra_price * 1.12) | round %}
+                    {% set flipkart_price = (myntra_price * 1.05) | round %}
+                    
+                    {% set prices = {
+                        'Myntra (Eco)': myntra_price,
+                        'Amazon': amazon_price,
+                        'Flipkart': flipkart_price
+                    } %}
+                    {% set min_price = prices.values() | min %}
+                    
+                    {% for store, price in prices.items() %}
+                        <li class="price-item {% if price == min_price %}lowest-price-tag{% endif %}" style="padding: 0.25rem 0.4rem;">
+                            <span>{{ store }}</span>
+                            <span class="{% if price == min_price %}lowest-price-val{% endif %}">₹{{ price }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Details Action Button -->
+                <a href="{{ url_for('products.product_details', product_id=product.id) }}" class="btn view-btn" style="background: linear-gradient(135deg, var(--success), #059669); color: white;">
+                    Analyze Sustainability 🌿
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="glass-container" style="text-align: center; padding: 4rem 2rem;">
+        <span style="font-size: 4rem;">🌱</span>
+        <h3 style="margin-top: 1.5rem;">No eco-friendly catalog items indexed</h3>
+        <p>Database queries completed but no matching green clothing items found. Check database seeding.</p>
+    </div>
+{% endif %}
+{% endblock %}

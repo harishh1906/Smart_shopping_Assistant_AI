@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SmartShop AI{% endblock %}
+
+{% block content %}
+<div class="glass-container auth-box">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Sign In</h2>
+    
+    <form method="POST" action="{{ url_for('auth.login') }}">
+        <div class="auth-form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="auth-input" placeholder="you@example.com" required>
+        </div>
+        
+        <div class="auth-form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="auth-input" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn auth-submit-btn">Continue to Assistant 🚀</button>
+    </form>
+    
+    <div class="auth-footer">
+        <p>New to SmartShop? <a href="{{ url_for('auth.register') }}">Create an Account</a></p>
+    </div>
+</div>
+{% endblock %}
