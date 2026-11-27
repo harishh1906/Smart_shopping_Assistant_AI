@@ -177,3 +177,32 @@ docker run -d -p 5000:5000 --env-file .env smart-shopping-assistant
 - [ ] **Multi-Modal Image Querying**: Implement feature vector indexing using deep ResNet-50 embeddings, allowing users to upload clothing images to retrieve identical listings.
 - [ ] **Real-Time Web Scraping**: Transition from static SQL tables to asynchronous Python scrapers (`Playwright` / `BeautifulSoup`) checking Myntra, Amazon, and Flipkart prices in real time.
 - [ ] **RAG-based Chatbot**: Integrate a local quantized Llama-3 model using vector store databases (`ChromaDB`) to assist buyers with conversational inquiries.
+
+
+## API & Implementation Navigation
+
+The application uses a Flask backend organized into route handlers and service modules. The repository's `docs/api_spec.md` and `docs/architecture.md` are the detailed references for endpoint contracts and system design.
+
+| Area | Source location | Responsibility |
+|---|---|---|
+| Authentication | `backend/app/routes/auth.py` | Registration, login, and logout flows. |
+| Product catalogue | `backend/app/routes/products.py` | Product search, details, and catalogue-related routes. |
+| AI descriptions | `backend/app/routes/ai.py` | Product description generation endpoint. |
+| Database access | `backend/app/services/db.py` | MySQL connection and database operations. |
+| Recommendations | `backend/app/services/recommender.py` | TF-IDF and cosine-similarity recommendations. |
+| Review sentiment | `backend/app/services/sentiment.py` | TextBlob polarity and subjectivity analysis. |
+
+### Database setup notes
+
+The documented local setup uses a MySQL database named `shopping_db`. Initialize it and import the repository's SQL seed file:
+
+```bash
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS shopping_db;"
+mysql -u root -p shopping_db < database/shopping_db.sql
+```
+
+Then review `.env.example` and set the local database credentials in your untracked `.env` file. The README documents starting the Flask application with `python backend/run.py` and opening it at `http://localhost:5000`.
+
+### API change checklist
+
+When adding or changing a route, update `docs/api_spec.md`, keep request/response behavior aligned with the relevant route module, and verify the corresponding UI call in `backend/app/static/js/main.js` or the relevant template. For database changes, update the schema/seed documentation and the setup instructions together. Do not put real credentials or private product/customer data in examples.
